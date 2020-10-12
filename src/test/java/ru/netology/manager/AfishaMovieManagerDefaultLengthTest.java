@@ -1,15 +1,24 @@
 package ru.netology.manager;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.netology.domain.Movie;
+import ru.netology.repository.AfishaMovieRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
+public class AfishaMovieManagerDefaultLengthTest {
 
-class AfishaMovieManagerDefaultLengthTest {
+    @Mock
+    private AfishaMovieRepository movieRepository;
 
-    private AfishaMovieManager manager = new AfishaMovieManager();
+    @InjectMocks
+    private AfishaMovieManager manager;
     private Movie first = new Movie(1, "1Url", "first", "1");
     private Movie second = new Movie(2, "2Url", "second", "2");
     private Movie third = new Movie(3, "3Url", "third", "3");
@@ -23,44 +32,44 @@ class AfishaMovieManagerDefaultLengthTest {
     private Movie eleventh = new Movie(11, "11Url", "eleventh", "11");
     private Movie twelve = new Movie(12, "12Url", "twelve", "12");
 
-    @BeforeEach
-    public void setUp() {
-        manager.addMovie(first);
-        manager.addMovie(second);
-        manager.addMovie(third);
-        manager.addMovie(fourth);
-        manager.addMovie(fifth);
-        manager.addMovie(sixth);
-        manager.addMovie(seventh);
-        manager.addMovie(eighth);
-        manager.addMovie(ninth);
+    @Test
+    public void shouldRemoveMovieById() {
+        int idToRemove = 5;
+        Movie[] returned = new Movie[]{first, second, third, fourth, sixth, seventh, eighth, ninth};
+        doReturn(returned).when(movieRepository).findAll();
+        doNothing().when(movieRepository).removeById(idToRemove);
+        manager.removeById(idToRemove);
+        Movie[] expected = new Movie[]{ninth, eighth, seventh, sixth, fourth, third, second, first};
+        Movie[] actual = manager.getLastMovies();
+        assertArrayEquals(expected, actual);
+        verify(movieRepository).removeById(idToRemove);
     }
 
     @Test
-    public void shouldAddLessThenTenMovies() {
+    public void shouldGetLessThenTenMovies() {
+        Movie[] returned = new Movie[] {first, second, third, fourth, fifth, sixth, seventh, eighth, ninth};
+        doReturn(returned).when(movieRepository).findAll();
+        Movie[] expected = new Movie[] {ninth, eighth, seventh, sixth, fifth, fourth, third, second, first};
         Movie[] actual = manager.getLastMovies();
-        Movie[] expected = new Movie[] {ninth, eighth, seventh, sixth,
-                fifth, fourth, third, second, first};
         assertArrayEquals(expected, actual);
     }
 
     @Test
-    public void shouldAddTenMovies() {
-        manager.addMovie(tenth);
+    public void shouldGetTenMovies() {
+        Movie[] returned = new  Movie[] {first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth};
+        doReturn(returned).when(movieRepository).findAll();
+        Movie[] expected = new Movie[] {tenth, ninth, eighth, seventh, sixth, fifth, fourth, third, second, first};
         Movie[] actual = manager.getLastMovies();
-        Movie[] expected = new Movie[] {tenth, ninth, eighth, seventh, sixth,
-                fifth, fourth, third, second, first};
         assertArrayEquals(expected, actual);
     }
 
     @Test
-    public void shouldAddMoreThenTenMovies() {
-        manager.addMovie(tenth);
-        manager.addMovie(eleventh);
-        manager.addMovie(twelve);
+    public void shouldGetMoreThenTenMovies() {
+        Movie[] returned = new  Movie[] {first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth,
+                eleventh, twelve};
+        doReturn(returned).when(movieRepository).findAll();
+        Movie[] expected = new Movie[]{twelve, eleventh, tenth, ninth, eighth, seventh, sixth, fifth, fourth, third};
         Movie[] actual = manager.getLastMovies();
-        Movie[] expected = new Movie[] {twelve, eleventh, tenth, ninth, eighth, seventh, sixth,
-                fifth, fourth, third};
         assertArrayEquals(expected, actual);
     }
 
